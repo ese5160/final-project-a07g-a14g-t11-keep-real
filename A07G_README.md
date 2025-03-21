@@ -79,3 +79,6 @@ N/A
     - If the user enters fingerprint input mode, the LCD screen shall display a prompt to guide the user to start entering their fingerprint.
     - If the user enters password input mode, the LCD screen shall display a prompt to guide the user to start entering the password.
 
+## 3. Block Diagram
+
+![Block Diagram](./images/7_1_Task_Diagram.png)
