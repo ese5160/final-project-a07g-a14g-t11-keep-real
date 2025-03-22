@@ -2,7 +2,7 @@
  * @Author: wyiwei1 wyiwei@seas.upenn.edu
  * @Date: 2025-03-18 22:48:58
  * @LastEditors: wyiwei1 wyiwei@seas.upenn.edu
- * @LastEditTime: 2025-03-21 15:46:06
+ * @LastEditTime: 2025-03-21 19:51:47
  * @FilePath: \final-project-a07g-a14g-t11-keep-real\A07G_README.md
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -16,20 +16,20 @@
 
 # 1. Software Architecture
 
-## 1. Hardware Requirements Specification (HRS)
+## 1.1 Hardware Requirements Specification (HRS)
 
-### 1.1 Overview
+### 1.1.1 Overview
 
 The project's hardware comprises a fingerprint sensor, a secure 4x4 matrix keypad for password input, and an SG90 servo motor for accurate lock simulation. The air quality sensor is used to detect data such as temperature, humidity, and air quality inside the house and display it on an LCD screen. A buzzer is used to trigger an alarm when necessary.
 
-### 1.2 Definitions, Abbreviations
+### 1.1.2 Definitions, Abbreviations
 
 **ST7735**: Single-chip controller/driver for 262K-color, graphic type TFT-LCD.
 **4x4 matrix keypad**: Traditional input method.
 **SG90**: Servo motor controlled by PWM.
 **BME680**: Environmental Sensor that combines a gas sensor with temperature, humidity and barometric pressure sensing
 
-### 1.3 Functionality
+### 1.1.3 Functionality
 
 - HRS 01 – Microcontroller Core
     - The project will focus on the SAM W25 microcontroller, offering Wi-Fi connectivity and powerful data processing to manage sensor inputs and control output devices. Interfaces include SPI, I2C, and UART, with an operating voltage of 3.3V.
@@ -46,21 +46,21 @@ The project's hardware comprises a fingerprint sensor, a secure 4x4 matrix keypa
 - HRS 07 - Buzzer Warning
     - The buzzer shall alarm if the password or fingerprint is entered incorrectly too many times. Connection for ST7735: GPIO, Voltage: 3.3V
 
-## 2. Software Requirements Specification (SRS)
+## 1.2 Software Requirements Specification (SRS)
 
-### 2.1 Overview
+### 1.2.1 Overview
 
 The software is responsible for managing user input and controlling hardware behavior, including the storage, recognition, and comparison of fingerprints and passwords. If the number of incorrect inputs exceeds the limit, the system will generate an alarm and control the locking and unlocking of the door. Additionally, the software reads parameters from the air quality sensor, displays air quality information on the LCD screen, and finally uploads alarm messages and air quality data to the cloud. Users can also control the locking and unlocking of the door remotely via the cloud.
 
-### 2.2 Users
+### 1.2.2 Users
 
 Suitable for users with large households, who care about indoor air quality, and prefer not to carry keys when going out.  
 
-### 2.3 Definitions, Abbreviations
+### 1.2.3 Definitions, Abbreviations
 
 N/A
 
-### 2.4 Functionality
+### 1.2.4 Functionality
 
 - SRS 01 – Fingerprint Detection
     - When the user presses "A" on the keypad and enters a password, the software shall enter fingerprint enrollment mode, using the fingerprint sensor to capture and store the user's fingerprint.
@@ -79,16 +79,55 @@ N/A
     - If the user enters fingerprint input mode, the LCD screen shall display a prompt to guide the user to start entering their fingerprint.
     - If the user enters password input mode, the LCD screen shall display a prompt to guide the user to start entering the password.
 
-## 3. Block Diagram
+## 1.3 Block Diagram
 
 ![Block Diagram](./images/7_1_Task_Diagram.png)
 
-## 4. Flowcharts
+## 1.4 Flowcharts
 
-### 4.1 Keypad  
+### 1.4.1 Keypad  
 
 ![Keypad Flowchart](./images/7_2_Keypad_FlowChart.png)
 
-### 4.2 Fingerprint detection
+### 1.4.2 Fingerprint detection
 
 ![Keypad Flowchart](./images/7_3_Fingerprint_Flowchart.png)
+
+
+# 2. Understanding the Starter Code
+
+## 2.1 What does “InitializeSerialConsole()” do? In said function, what is “cbufRx” and “cbufTx”? What type of data structure is it?
+
+- This function primarily initializes the UART (Universal Asynchronous Receiver/Transmitter) so the system can communicate via a serial interface. It configures the RX and TX pins, sets up the USART module for asynchronous communication, handles the logic for sending and receiving data, sets interrupt priorities, and finally launches a task that continuously reads incoming bytes.
+- cbufRx and cbufTx are pointers to two circular buffers. cbufRx is used to store characters received from the UART. cbufTx is used to store characters that need to be transmitted via the UART.
+- The data structure is defined in circular_buffer.c. The structure includes a buffer to store characters, write pointer, read pointer, buffer size and full indicator for circular buffer.
+
+## 2.2 How are “cbufRx” and “cbufTx” initialized? Where is the library that defines them (please list the *C file they come from)
+
+- They are initialized by calling the circular_buf_init() function, which allocates a circular_buf_t struct memory, sets the buffer pointer, the maximum capacity, and then resets the buffer state
+- Lib: circular_buffer.c
+
+## 2.3 Where are the character arrays where the RX and TX characters are being stored at the end? Please mention their name and size.
+
+- The received and transmitted characters are ultimately stored in two character arrays defined in SerialConsole.c: rxCharacterBuffer and txCharacterBuffer. Both arrays are 512 bytes in size, as specified by the macros RX_BUFFER_SIZE and TX_BUFFER_SIZE in the file (both set to 512)
+
+## 2.4 Where are the interrupts for UART character received and UART character sent defined? 
+
+- The interrupt handling for receiving and sending UART characters is defined in the SerialConsole.c file by the callback function mechanism.
+- usart_read_callback(struct usart_module *const usart_module) - handles an interrupt when a character is received
+- usart_write_callback(struct usart_module *const usart_module) - Handles an interrupt when the character is sent
+
+## 2.5 What are the callback functions that are called when: A character is received? (RX) A character has been sent? (TX)
+
+- a. usart_read_callback(struct usart_module *const usart_module)
+- b. usart_write_callback(struct usart_module *const usart_module)
+
+## 2.6 Explain what is being done on each of these two callbacks and how they relate to the cbufRx and cbufTx buffers.
+
+
+
+## 2.7 Draw a diagram that explains the program flow for UART receive – starting with the user typing a character and ending with how that characters ends up in the circular buffer “cbufRx”. Please make reference to specific functions in the starter code
+
+## 2.8 Draw a diagram that explains the program flow for the UART transmission – starting from a string added by the program to the circular buffer “cbufTx” and ending on characters being shown on the screen of a PC (On Teraterm, for example). Please make reference to specific functions in the starter code. 
+
+## 2.9 What is done on the function “startStasks()” in main.c? How many threads are started?
