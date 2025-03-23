@@ -153,6 +153,24 @@ void LogMessage(enum eDebugLogLevels level, const char *format, ...)
 {
     // Todo: Implement Debug Logger
 	// More detailed descriptions are in header file
+	if(level < currentDebugLevel){
+		return;
+	}
+	// Handle the variable arguments
+	va_list args;
+	va_start(args, format);
+	
+	// Buffer to store the formatted message
+	char buffer[256];
+
+	// Format the message
+	vsnprintf(buffer, sizeof(buffer), format, args);
+
+	// Write the formatted message to the serial console
+	SerialConsoleWriteString(buffer);
+	
+    // clean up the variable arguments
+	va_end(args);
 }
 
 /*
@@ -220,7 +238,15 @@ static void configure_usart_callbacks(void)
  *****************************************************************************/
 void usart_read_callback(struct usart_module *const usart_module)
 {
-	// ToDo: Complete this function 
+	// ToDo: Complete this function
+
+	// Stores the received characters into the receive ring buffer
+    circular_buf_put(cbufRx, (uint8_t)latestRx);
+    
+    // Start next receive
+    usart_read_buffer_job(&usart_instance, (uint8_t *)&latestRx, 1);
+	CliCharReadySemaphoreGiveFromISR();
+	 
 }
 
 /**************************************************************************/ 

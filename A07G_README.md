@@ -2,7 +2,7 @@
  * @Author: wyiwei1 wyiwei@seas.upenn.edu
  * @Date: 2025-03-18 22:48:58
  * @LastEditors: wyiwei1 wyiwei@seas.upenn.edu
- * @LastEditTime: 2025-03-21 19:51:47
+ * @LastEditTime: 2025-03-23 13:07:04
  * @FilePath: \final-project-a07g-a14g-t11-keep-real\A07G_README.md
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -89,9 +89,17 @@ N/A
 
 ![Keypad Flowchart](./images/7_2_Keypad_FlowChart.png)
 
-### 1.4.2 Fingerprint detection
+### 1.4.2 Fingerprint Detection
 
 ![Keypad Flowchart](./images/7_3_Fingerprint_Flowchart.png)
+
+### 1.4.3 Air Quality Dtection
+
+![Air Quality Flowchart](./images/7_4_Air_Quality_Flowchart.png)
+
+### 1.4.4 LCD Display 
+
+![LCD Display](./images/7_5_LCD_Display_Flowchart.png)
 
 
 # 2. Understanding the Starter Code
@@ -124,10 +132,20 @@ N/A
 
 ## 2.6 Explain what is being done on each of these two callbacks and how they relate to the cbufRx and cbufTx buffers.
 
-
+- usart_read_callback: Called when UART receives a character. The received characters (stored in latestRx) are stored in the receive ring buffer cbufRx. Use usart_read_buffer_job to start the next asynchronous receive and maintain the ability to receive continuously. cbufRx is used to store all received characters for reading by other tasks.  
+- usart_write_callback: Called when UART finishes sending a character. Next, check if there is still data to send in the send ring buffer cbufTx. If there is data, fetch the next character to be sent (to latestTx). Start the next asynchronous send using usart_write_buffer_job. cbufTx is used to store all the characters to be sent, implementing the send queue. 
 
 ## 2.7 Draw a diagram that explains the program flow for UART receive – starting with the user typing a character and ending with how that characters ends up in the circular buffer “cbufRx”. Please make reference to specific functions in the starter code
 
+![UART_Read](./images/7_6_UART_read_flowchart.png)
+
 ## 2.8 Draw a diagram that explains the program flow for the UART transmission – starting from a string added by the program to the circular buffer “cbufTx” and ending on characters being shown on the screen of a PC (On Teraterm, for example). Please make reference to specific functions in the starter code. 
 
+![UART_Read](./images/7_7_UART_send_flowchart.png)
+
 ## 2.9 What is done on the function “startStasks()” in main.c? How many threads are started?
+
+- Print heap memory size before job start.
+- Creat a CLI task.  
+- Print the heap memory size after the job started.
+- This function starts only one thread, the CLI task.  
