@@ -245,8 +245,11 @@ void usart_read_callback(struct usart_module *const usart_module)
     
     // Start next receive
     usart_read_buffer_job(&usart_instance, (uint8_t *)&latestRx, 1);
-	CliCharReadySemaphoreGiveFromISR();
-	 
+
+	//The notification waiting task has a new character to read
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    xSemaphoreGiveFromISR(cliCharReadySemaphore, &xHigherPriorityTaskWoken);
+	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 /**************************************************************************/ 

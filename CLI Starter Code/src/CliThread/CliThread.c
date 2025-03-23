@@ -1,3 +1,11 @@
+/*
+ * @Author: wyiwei1 wyiwei@seas.upenn.edu
+ * @Date: 2025-03-18 22:48:58
+ * @LastEditors: wyiwei1 wyiwei@seas.upenn.edu
+ * @LastEditTime: 2025-03-23 17:38:15
+ * @FilePath: \final-project-a07g-a14g-t11-keep-real\CLI Starter Code\src\CliThread\CliThread.c
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 /**************************************************************************/ /**
  * @file      CliThread.c
  * @brief     File for the CLI Thread handler. Uses FREERTOS + CLI
@@ -14,6 +22,8 @@
 /******************************************************************************
  * Defines
  ******************************************************************************/
+
+SemaphoreHandle_t cliCharReadySemaphore = NULL;
 
 /******************************************************************************
  * Variables
@@ -36,6 +46,22 @@ static const CLI_Command_Definition_t xResetCommand =
         (const pdCOMMAND_LINE_CALLBACK)CLI_ResetDevice,
         0};
 
+// Add the definition of the version command
+static const CLI_Command_Definition_t xVersionCommand =
+    {
+        CLI_COMMAND_VERSION,
+        CLI_HELP_VERSION,
+        CLI_CALLBACK_VERSION,
+        CLI_PARAMS_VERSION};
+
+// Add the definition of the ticks command
+static const CLI_Command_Definition_t xTicksCommand =
+    {
+        CLI_COMMAND_TICKS,
+        CLI_HELP_TICKS,
+        CLI_CALLBACK_TICKS,
+        CLI_PARAMS_TICKS};
+
 /******************************************************************************
  * Forward Declarations
  ******************************************************************************/
@@ -54,6 +80,8 @@ void vCommandConsoleTask(void *pvParameters)
 
     FreeRTOS_CLIRegisterCommand(&xClearScreen);
     FreeRTOS_CLIRegisterCommand(&xResetCommand);
+    FreeRTOS_CLIRegisterCommand(&xVersionCommand);
+    FreeRTOS_CLIRegisterCommand(&xTicksCommand);
 
     uint8_t cRxedChar[2], cInputIndex = 0;
     BaseType_t xMoreDataToFollow;
@@ -217,7 +245,12 @@ void vCommandConsoleTask(void *pvParameters)
 static void FreeRTOS_read(char *character)
 {
     // ToDo: Complete this function
-    vTaskSuspend(NULL); // We suspend ourselves. Please remove this when doing your code
+    //vTaskSuspend(NULL); // We suspend ourselves. Please remove this when doing your code
+    int reset = SerialConsoleReadCharacter((uint8_t*)character);
+    while(reset == -1){
+        xSemaphoreTake(cliCharReadySemaphore, portMAX_DELAY);
+        reset = SerialConsoleReadCharacter((uint8_t*)character);
+    }
 }
 
 /******************************************************************************
@@ -242,3 +275,30 @@ BaseType_t CLI_ResetDevice(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const 
     system_reset();
     return pdFALSE;
 }
+
+/**
+ * @brief CLI command that prints the firmware version
+ * @param pcWriteBuffer Buffer to write the output to
+ * @param xWriteBufferLen Length of the write buffer
+ * @param pcCommandString Command string
+ * @return pdFALSE indicating no more data to print
+ */
+BaseType_t CLI_PrintVersion(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString)
+{
+    snprintf((char *)pcWriteBuffer, xWriteBufferLen, "Firmware Version: %s\r\n", FIRMWARE_VERSION);
+    return pdFALSE;
+}
+
+/**
+ * @brief CLI command that prints the number of ticks since the scheduler started
+ * @param pcWriteBuffer Buffer to write the output to
+ * @param xWriteBufferLen Length of the write buffer
+ * @param pcCommandString Command string
+ * @return pdFALSE indicating no more data to print
+ */
+BaseType_t CLI_PrintTicks(int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString)
+{
+    snprintf((char *)pcWriteBuffer, xWriteBufferLen, "System Ticks: %lu\r\n", xTaskGetTickCount());
+    return pdFALSE;
+}
+

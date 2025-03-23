@@ -102,6 +102,8 @@ static void StartTasks(void)
 	SerialConsoleWriteString(bufferPrint);
 
 	// CODE HERE: Initialize any Tasks in your system here
+	
+	cliCharReadySemaphore = xSemaphoreCreateBinary(); // Indicates whether any characters in the buffer can be received
 
 	if (xTaskCreate(vCommandConsoleTask, "CLI_TASK", CLI_TASK_SIZE, NULL, CLI_PRIORITY, &cliTaskHandle) != pdPASS)
 	{

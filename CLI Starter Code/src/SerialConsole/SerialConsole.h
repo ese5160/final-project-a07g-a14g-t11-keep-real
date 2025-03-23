@@ -124,6 +124,9 @@ enum eDebugLogLevels getLogLevel(void);
 /******************************************************************************
 * Local Functions
 ******************************************************************************/
+// ADD a semaphore for CLI read
+extern SemaphoreHandle_t cliCharReadySemaphore;
+
 
 
 #endif /* SERIAL_CONSOLE_H */
