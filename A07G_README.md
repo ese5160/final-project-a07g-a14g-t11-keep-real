@@ -2,7 +2,7 @@
  * @Author: wyiwei1 wyiwei@seas.upenn.edu
  * @Date: 2025-03-18 22:48:58
  * @LastEditors: wyiwei1 wyiwei@seas.upenn.edu
- * @LastEditTime: 2025-03-23 18:26:19
+ * @LastEditTime: 2025-03-23 21:27:46
  * @FilePath: \final-project-a07g-a14g-t11-keep-real\A07G_README.md
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -97,10 +97,17 @@ N/A
 
 ![Air Quality Flowchart](./images/7_4_Air_Quality_Flowchart.png)
 
-### 1.4.4 LCD Display 
+### 1.4.4 LCD Display
 
 ![LCD Display](./images/7_5_LCD_Display_Flowchart.png)
 
+### 1.4.5 Unlocking
+
+![Unlocking](./images/7_10_Locker_flowchart.png)
+
+### 1.4.6 Buzzer
+
+![Buzzer](images/7_11_Buzzer_Flowchart.png)
 
 # 2. Understanding the Starter Code
 
@@ -152,18 +159,54 @@ N/A
 
 # 3. Debug Logger Module
 
-
-
 # 4. Wiretap the convo!
 
+## 4.1. What nets must you attach the logic analyzer to? (Check how the firmware sets up the UART in SerialConsole.c!)
+
+- TX cable (data cable from SAMW25 to EDBG)
+- RX cable (data cable sent by EDBG to SAMW25)
+- GND (ground wire, for reference)
+
+## 4.2. Where on the circuit board can you attach / solder to?
+
+Pin10, Pin11, GND
+
+## 4.3. What are critical settings for the logic analyzer
+
+- Enable the "Async Serial" analyzer in Saleae Logic
+- Set the baud rate to 115200
+- Data bit: 8
+- Stop bit: 1
+- Parity check: None
+- Bit order: LSB first (least significant bit first)
+- Select the matching channel (we chose Channel 4)
+
+## 4.4. Submit a photo of your hardware connections between the SAMW25 Xplained dev board and the logic analyzer.
+
+![hardware_connection](images/7_9_hardware_connection.jpg)
+
+## 4.5. Submit a screenshot of the decoded message
+
+![decoded message](images/7_8_decoded_message.png)
+
+## 4.6. Submit a small capture file (i.e., the .sal file) of a wiretapped conversation
+
+[small capture file](a07g_4.sal)
 
 # 5. Complete the CLI
 
+[Code](<CLI Starter Code/src/CliThread/CliThread.c>)
 
+[Code](<CLI Starter Code/src/CliThread/CliThread.h>)
 
 # 6. Add CLI commands
 
 1. Commit your functioning CLI code to your GitHub repo, and make comments that are in Doxygen style.
 
+[Code](<CLI Starter Code/src/CliThread/CliThread.c>)
+
+[Code](<CLI Starter Code/src/CliThread/CliThread.h>)
 
 2. Submit a link to a video of this functionality in your README.md 
+
+[CLI](https://drive.google.com/file/d/1WmuCCBhuYZ3u5fgB_sfV2NnfDrmm9Sil/view?usp=sharing)
